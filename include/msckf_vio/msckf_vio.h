@@ -208,6 +208,7 @@ class MsckfVio {
     ros::Subscriber imu_sub;
     ros::Subscriber feature_sub;
     ros::Publisher odom_pub;
+    ros::Publisher pose_pub;
     ros::Publisher feature_pub;
     tf::TransformBroadcaster tf_pub;
     ros::ServiceServer reset_srv;

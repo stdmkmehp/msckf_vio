@@ -177,6 +177,7 @@ bool MsckfVio::loadParameters() {
 }
 
 bool MsckfVio::createRosIO() {
+  pose_pub = nh.advertise<geometry_msgs::PoseStamped>("pose", 10);
   odom_pub = nh.advertise<nav_msgs::Odometry>("odom", 10);
   feature_pub = nh.advertise<sensor_msgs::PointCloud2>(
       "feature_point_cloud", 10);
@@ -1362,6 +1363,9 @@ void MsckfVio::onlineReset() {
   return;
 }
 
+// double lastT = 0;
+// double sum = 0;
+// int nt = 0;
 void MsckfVio::publish(const ros::Time& time) {
 
   // Convert the IMU frame to the body frame.
@@ -1420,6 +1424,21 @@ void MsckfVio::publish(const ros::Time& time) {
       odom_msg.twist.covariance[i*6+j] = P_body_vel(i, j);
 
   odom_pub.publish(odom_msg);
+
+  geometry_msgs::PoseStamped posMsg;
+  posMsg.header.stamp = time;
+  posMsg.pose = odom_msg.pose.pose;
+  pose_pub.publish(posMsg);
+  std::cout<<std::to_string(time.toSec())<<std::endl;
+  // double deltat = ros::Time::now().toSec()-lastT;
+  // std::cout<<"delta T: "<<std::to_string(deltat)
+  // <<"\t time: "<<std::to_string(ros::Time::now().toSec())<<std::endl;
+  // lastT = ros::Time::now().toSec();
+  // if(deltat<1000) {
+  //   sum += deltat;
+  //   nt += 1;
+  //   cout<<"avg "<<sum/nt<<endl;
+  // }
 
   // Publish the 3D positions of the features that
   // has been initialized.
